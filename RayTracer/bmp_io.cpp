@@ -135,7 +135,7 @@ bool bmp_08_data_read ( ifstream &file_in, unsigned long int width, long int hei
 {
   char c;
   bool error;
-  unsigned int i;
+  int i;
   unsigned char *indexr;
   int j;
   int numbyte;
@@ -252,7 +252,7 @@ void bmp_08_data_write ( ofstream &file_out, unsigned long int width,
 //    Input, unsigned char *RARRAY, pointer to the red color array.
 //
 {
-  unsigned int i;
+  int i;
   unsigned char *indexr;
   int j;
   int padding;
@@ -341,7 +341,7 @@ bool bmp_24_data_read ( ifstream &file_in, unsigned long int width, long int hei
 {
   char c;
   bool error;
-  unsigned int i;
+  int i;
   unsigned char *indexb;
   unsigned char *indexg;
   unsigned char *indexr;
@@ -493,12 +493,12 @@ void bmp_24_data_write ( ofstream &file_out, unsigned long int width,
 //    and blue color arrays.
 //
 {
-	unsigned int i;
-  unsigned char *indexb;
-  unsigned char *indexg;
-  unsigned char *indexr;
-  int j;
-  int padding;
+	int i;
+	unsigned char *indexb;
+	unsigned char *indexg;
+	unsigned char *indexr;
+	int j;
+	int padding;
 //
 //  Set the padding.
 //
@@ -1209,11 +1209,11 @@ void bmp_palette_print ( unsigned long int colorsused,
 //    red, green, blue and transparency palette arrays.
 //
 {
-	unsigned int i;
-  unsigned char *indexa;
-  unsigned char *indexb;
-  unsigned char *indexg;
-  unsigned char *indexr;
+	int i;
+	unsigned char *indexa;
+	unsigned char *indexb;
+	unsigned char *indexg;
+	unsigned char *indexr;
 
   cout << "\n";
   cout << "  Palette information from BMP file:\n";
@@ -1306,7 +1306,7 @@ bool bmp_palette_read ( ifstream &file_in, unsigned long int colorsused,
 {
   char c;
   bool error;
-  unsigned int i;
+  int i;
   unsigned char *indexa;
   unsigned char *indexb;
   unsigned char *indexg;
@@ -1430,11 +1430,11 @@ void bmp_palette_write ( ofstream &file_out, unsigned long int colorsused,
 //    red, green, blue and transparency palette arrays.
 //
 {
-	unsigned int i;
-  unsigned char *indexa;
-  unsigned char *indexb;
-  unsigned char *indexg;
-  unsigned char *indexr;
+	int i;
+	unsigned char *indexa;
+	unsigned char *indexb;
+	unsigned char *indexg;
+	unsigned char *indexr;
 
   indexr = rparray;
   indexg = gparray;
@@ -2161,7 +2161,7 @@ bool bmp_08_write_test ( char *file_out_name )
 
   bool error;
   long int height;
-  unsigned int i;
+  int i;
   unsigned char *indexr;
   int j;
   int numbytes;
@@ -2360,7 +2360,12 @@ bool bmp_24_write ( char *file_out_name, unsigned long int width, long int heigh
 //
 //  Close the file.
 //
-  file_out.close ( );
+  file_out.close();
+
+  //Print the path to the file
+  /*char path[FILENAME_MAX];
+  GetModuleFileName(NULL, path, FILENAME_MAX);
+  printf();*/
 
   error = false;
   return error;

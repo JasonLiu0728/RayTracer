@@ -75,13 +75,6 @@ bool UnitSquare::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 
 bool UnitSphere::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 		const Matrix4x4& modelToWorld ) {
-	// TODO: implement intersection code for UnitSphere, which is centred 
-	// on the origin.  
-	//
-	// Your goal here is to fill ray.intersection with correct values
-	// should an intersection occur.  This includes intersection.point, 
-	// intersection.normal, intersection.none, intersection.t_value.   
-	//
 	// HINT: Remember to first transform the ray into object space  
 	// to simplify the intersection test.
 	
@@ -93,7 +86,7 @@ bool UnitSphere::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 	//sphere parameters
 	Point3D centerOfSphere(0,0,0); 
 	double radius = 1;
-	Vector3D rayToSphere(r.origin-centerOfSphere);
+	Vector3D rayToSphere(r.origin-centerOfSphere); // ray from origin to sphere
 
 	/*
 	// calculate unit vector for the ray direction
@@ -111,12 +104,12 @@ bool UnitSphere::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
     double B = 2*(r.dir.dot(r.origin-centerOfSphere)); 
     double C = (r.origin-centerOfSphere).dot(r.origin-centerOfSphere) - radius * radius;
     double dis = B*B - 4*A*C;
-    if ( dis < 0 ) {
+    if ( dis < 0 )
+	{
     	return false;
     }
-	else {
-		//double sol1 = -1 * unitDir.dot(rayToSphere) + sqrt(squareRoot);
-		//double sol2 = -1 * unitDir.dot(rayToSphere) - sqrt(squareRoot);
+	else
+	{
 		double sol1 = (-B + sqrt(dis))/(2 * A);
     	double sol2 = (-B - sqrt(dis))/(2 * A);
 		double d = fmin(sol1,sol2);
@@ -239,8 +232,8 @@ bool UnitCylinder::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 
         if (intersectionPoint[2] < 0.5 && intersectionPoint[2] > -0.5)
         {
-            /*if (!ray.intersection.none > ray.intersection.t_value)
-                return false;*/
+            if (!ray.intersection.none > ray.intersection.t_value)
+                return false;
 
             ray.intersection.point = modelToWorld * intersectionPoint;
             Point3D normalll;

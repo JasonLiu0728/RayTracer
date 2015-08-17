@@ -1,0 +1,15 @@
+struct Ray3D {
+	float3 origin;
+	float3 dir;
+	float3 col;
+};
+float norm(float3 m_data)
+{
+	float denom = 1.0f;
+	if (m_data.x > 0.0f) { float x = m_data.x; }
+	return denom;
+}
+__kernel void main( __global float4 *dst, uint width, uint height, __global float* eye, __global float* view, __global float* up, __global float* fov )
+{
+	norm();
+}

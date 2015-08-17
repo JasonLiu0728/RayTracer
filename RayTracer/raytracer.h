@@ -64,6 +64,9 @@ public:
 	Raytracer();
 	~Raytracer();
 
+	// Initialization of the platform, device, etc.
+	void initOpenCL();
+
 	// Renders an image fileName with width and height and a camera
 	// positioned at eye, with view vector view, up vector up, and
 	// field of view fov.
@@ -86,6 +89,8 @@ public:
 
 	// Add a light source.
 	LightListNode* addLightSource( LightSource* light );
+
+	// Add an area light source
 	void addAreaLightSource(int orient, double l, double w, double density, Point3D origin, Colour col);
 
 	double LightSource_length;
@@ -104,12 +109,20 @@ public:
 	// Apply scaling about a fixed point origin.
 	void scale( SceneDagNode* node, Point3D origin, double factor[3] );
 
-	// Control enable/disable of the effects
-	void controlEffects();
+	// Scene rendering
+	void scene1();
 
+	//Parse input arguments
+	void argParse(int argc, char* argv[]);
+
+	bool enableFSAA;
 	bool enableShadow;
 	bool enableGlossyReflection;
 	bool enableRefraction;
+
+	int imgWidth;
+	int imgHeight;
+
 
 private:
 	// Allocates and initializes the pixel buffer for rendering, you

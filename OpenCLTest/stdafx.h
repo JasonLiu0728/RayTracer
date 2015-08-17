@@ -7,26 +7,19 @@
 
 #include "targetver.h"
 
-#include <algorithm>
-#include <cmath>
-#include <cstdlib>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
 #include <stdio.h>
 #include <tchar.h>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <iterator>
+
 #include <CL\cl.h>
 #include <CL\cl.hpp>
 
-#include "util.h"
-#include "scene_object.h"
-#include "light_source.h"
-#include "bmp_io.h"
-#include "raytracer.h"
-#include "Effects.h"
-#include "Scene.h"
-
+#define __NO_STD_VECTOR
 
 
 

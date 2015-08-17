@@ -11,6 +11,46 @@ Raytracer::~Raytracer() {
 	delete _root;
 }
 
+void Raytracer::initOpenCL()
+{
+	// Get a platform
+	cl_platform_id platform;
+	cl_uint num_platforms;
+	clGetPlatformIDs(1, &platform, &num_platforms);
+
+	// Get a device
+	cl_device_id deviceGPU;
+	cl_uint num_devices;
+	clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &deviceGPU, &num_devices);
+
+	// Create a context and command queue on the GPU device
+	cl_context context = clCreateContext(NULL, 1, &deviceGPU, NULL, NULL, NULL);
+	cl_command_queue queue = clCreateCommandQueue(context, deviceGPU, 0, NULL);
+
+	// Perform runtime source compilation, and obtain kernel entry point
+	std::ifstream file("kernel.txt");
+	std::string source;
+	while (!file.eof())
+	{
+		char line[256];
+		file.getline(line, 255);
+		source += line;
+	}
+	const char* str = source.c_str();
+	cl_program program = clCreateProgramWithSource(context, 1, &str, NULL, NULL);
+	cl_int result = clBuildProgram(program, 1, &deviceGPU, NULL, NULL, NULL);
+	if (result)
+	{
+		std::cout << "Error during compilation! (" << result << ")" << std::endl;
+	}
+	else
+	{
+		std::cout << "Compilation OK" << std::endl;
+	}
+	/*cl_kernel kernel = clCreateKernel(program, "main", NULL);
+	std::cout << "Kernel created successfully" << std::endl;*/
+}
+
 SceneDagNode* Raytracer::addObject(SceneDagNode* parent,
 	SceneObject* obj, Material* mat) {
 	SceneDagNode* node = new SceneDagNode(obj, mat);
@@ -55,7 +95,7 @@ void Raytracer::addAreaLightSource(int orient, double l, double w, double densit
 		{
 			for (double j = origin[2] - w / 2; j <= origin[2] + w / 2; j += w / density)
 			{
-				addLightSource(new PointLight(Point3D(origin[0], i, j), col));
+				addLightSource(new PointLight(Point3D(origin[0], i, j), col, true));
 			}
 		}
 	}
@@ -365,63 +405,68 @@ void Raytracer::render(int width, int height, Point3D eye, Vector3D view,
 
 
 	/****************** Construct 4 rays for each pixel. (Anti-alising) ************************/
+	if (enableFSAA)
+	{
+		for (int i = 0; i < _scrHeight; i++) {
+			for (int j = 0; j < _scrWidth; j++) {
+				for (float k = i; k < i + 1.0f; k += 0.5f){
+					for (float l = j; l < j + 1.0f; l += 0.5f){
+						// Sets up ray origin and direction in view space,
+						// image plane is at z = -1.
+						Point3D origin(0, 0, 0);
+						Point3D imagePlane;
+						imagePlane[0] = (-double(width) / 2 + 0.5 + l) / factor;
+						imagePlane[1] = (-double(height) / 2 + 0.5 + k) / factor;
+						imagePlane[2] = -1;
 
-	//	for (int i = 0; i < _scrHeight; i++) {
-	//		for (int j = 0; j < _scrWidth; j++) {
-	//			for(float k = i; k < i + 1.0f; k += 0.5f){
-	//				for(float l = j; l < j + 1.0f; l += 0.5f){
-	//					// Sets up ray origin and direction in view space,
-	//					// image plane is at z = -1.
-	//					Point3D origin(0, 0, 0);
-	//					Point3D imagePlane;
-	//					imagePlane[0] = (-double(width)/2 + 0.5 + l)/factor;
-	//					imagePlane[1] = (-double(height)/2 + 0.5 + k)/factor;
-	//					imagePlane[2] = -1;
-	//
-	//					// TODO: Convert ray to world space and call
-	//					// shadeRay(ray) to generate pixel colour.
-	//					float incre = 0.25f;
-	//					Ray3D ray;
-	//					ray.origin = viewToWorld*origin;
-	//					ray.dir = viewToWorld*(imagePlane-origin);
-	//
-	//					Colour col = shadeRay(ray, 0);
-	//					_rbuffer[i*width+j] += int(col[0]*255*incre);
-	//					_gbuffer[i*width+j] += int(col[1]*255*incre);
-	//					_bbuffer[i*width+j] += int(col[2]*255*incre);
-	//				}
-	//			}
-	//		}
-	//	}
+						// TODO: Convert ray to world space and call
+						// shadeRay(ray) to generate pixel colour.
+						float incre = 0.25f;
+						Ray3D ray;
+						ray.origin = viewToWorld*origin;
+						ray.dir = viewToWorld*(imagePlane - origin);
 
-
+						Colour col = shadeRay(ray, 0);
+						_rbuffer[i*width + j] += int(col[0] * 255 * incre);
+						_gbuffer[i*width + j] += int(col[1] * 255 * incre);
+						_bbuffer[i*width + j] += int(col[2] * 255 * incre);
+					}
+				}
+			}
+		}
+	}
 
 	/****************** Construct 1 ray for each pixel. (No anti-alising) ************************/
+	if (!enableFSAA)
+	{
+		for (int i = 0; i < _scrHeight; i++) {
+			for (int j = 0; j < _scrWidth; j++) {
 
-	for (int i = 0; i < _scrHeight; i++) {
-		for (int j = 0; j < _scrWidth; j++) {
-			// Sets up ray origin and direction in view space,
-			// image plane is at z = -1.
-			Point3D origin(0, 0, 0);
-			Point3D imagePlane;
-			imagePlane[0] = (-double(width) / 2 + 0.5 + j) / factor;
-			imagePlane[1] = (-double(height) / 2 + 0.5 + i) / factor;
-			imagePlane[2] = -1;
+				// Sets up ray origin and direction in view space,
+				// image plane is at z = -1.
+				Point3D origin(0, 0, 0);
+				Point3D imagePlane;
+				imagePlane[0] = (-double(width) / 2 + 0.5 + j) / factor;
+				imagePlane[1] = (-double(height) / 2 + 0.5 + i) / factor;
+				imagePlane[2] = -1;
 
-			// TODO: Convert ray to world space and call
-			// shadeRay(ray) to generate pixel colour.
-			Ray3D ray;
-			viewToWorld = initInvViewMatrix(eye, view, up);
-			ray.origin = viewToWorld*origin;
-			ray.dir = viewToWorld*(imagePlane - origin);
+				// TODO: Convert ray to world space and call
+				// shadeRay(ray) to generate pixel colour.
+				Ray3D ray;
+				viewToWorld = initInvViewMatrix(eye, view, up);
+				ray.origin = viewToWorld*origin;
+				ray.dir = viewToWorld*(imagePlane - origin);
 
-			Colour col = shadeRay(ray, 0);
-			_rbuffer[i*width + j] += int(col[0] * 255);
-			_gbuffer[i*width + j] += int(col[1] * 255);
-			_bbuffer[i*width + j] += int(col[2] * 255);
+				Colour col = shadeRay(ray, 0);
+				_rbuffer[i*width + j] += int(col[0] * 255);
+				_gbuffer[i*width + j] += int(col[1] * 255);
+				_bbuffer[i*width + j] += int(col[2] * 255);
+			}
+			std::cout << ".";
 		}
-		std::cout << i << "\n";
+		std::cout << "\n";
 	}
+	
 
 
 	/****************** Depth of field ************************/
@@ -462,12 +507,27 @@ void Raytracer::render(int width, int height, Point3D eye, Vector3D view,
 	flushPixelBuffer(fileName);
 }
 
-void Raytracer::controlEffects()
+void Raytracer::argParse(int argc, char* argv[])
 {
-	enableShadow = true;
-	enableGlossyReflection = false;
-	enableRefraction = false;
+	std::cout << "argc = " << argc << std::endl;
+	for (int i = 0; i < argc; i++)
+	{
+		std::cout << argv[i] << std::endl;
+	}
+
+	imgWidth = atoi(argv[1]);
+	imgHeight = atoi(argv[2]);
+	std::istringstream(argv[3]) >> std::boolalpha >> enableShadow;
+	std::istringstream(argv[4]) >> std::boolalpha >> enableGlossyReflection;
+	std::istringstream(argv[5]) >> std::boolalpha >> enableRefraction;
+
+	printf("\nwidth = %d, height = %d\n", imgWidth, imgHeight);
+	std::cout << "Soft Shadow\t" << enableShadow << std::endl;
+	std::cout << "Glossy Reflection\t" << enableGlossyReflection << std::endl;
+	std::cout << "Refraction\t" << enableRefraction << std::endl;
 }
+
+
 
 int main(int argc, char* argv[])
 {
@@ -478,15 +538,13 @@ int main(int argc, char* argv[])
 	// assignment.
 
 	Raytracer raytracer;
-	int width = 640;
-	int height = 640;
+	//Scene scene;
+	raytracer.argParse(argc, argv);
 
-	if (argc == 3) {
-		width = atoi(argv[1]);
-		height = atoi(argv[2]);
-	}
+	//scene.scene1(raytracer);
+	//scene.scene2(raytracer);
 
-	// Camera parameters.
+	// Camera parameters
 	Point3D eye(0, 0, 1);
 	Vector3D view(0, 0, -1);
 	Vector3D up(0, 1, 0);
@@ -499,77 +557,31 @@ int main(int argc, char* argv[])
 	Material jade(Colour(0, 0, 0), Colour(0.54, 0.89, 0.63),
 		Colour(0.316228, 0.316228, 0.316228),
 		12.8);
-	Material copper(Colour(0.3, 0.3, 0.3), Colour(0.75164, 0.30648, 0.12648),
-		Colour(0.628281, 0.555802, 0.366065),
-		51.2);
-	Material glass(Colour(0.3, 0.3, 0.3), Colour(0.8, 0.8, 0.8),
-		Colour(0.628281, 0.555802, 0.366065),
-		51.2);
+
+	// Initialize OpenCL
+	//raytracer.initOpenCL();
 
 	/****************** An area light source. ************************/
 	raytracer.addAreaLightSource(3, 2, 2, 8, Point3D(0, 0, 5), Colour(0.01, 0.01, 0.01));
 
-	/****************** A point light source. ************************/
-	//	raytracer.addLightSource( new PointLight(Point3D(0, 0, 5), Colour(0.9, 0.9, 0.9) ) );
-
-
 	// Add a unit square into the scene with material mat.
-	//	SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &gold );
 	SceneDagNode* plane = raytracer.addObject(new UnitSquare(), &jade);
 	SceneDagNode* cylinder = raytracer.addObject(new UnitCylinder(), &gold);
 
 	// Apply some transformations to the unit square.
-	double factor1[3] = { 1.0, 2.0, 1.0 };
-	double factor2[3] = { 6.0, 6.0, 6.0 };
-	double factor3[3] = { 1.5, 1.5, 3.0 };
-
-
-	SceneDagNode* sphere1 = raytracer.addObject(new UnitSphere(), &gold);
-	SceneDagNode* sphere2 = raytracer.addObject(new UnitSphere(), &copper);
-	SceneDagNode* sphere3 = raytracer.addObject(new UnitSphere(), &glass);
-	SceneDagNode* sphere4 = raytracer.addObject(new UnitSphere(), &jade);
-	double factor4[3] = { 0.5, 0.5, 0.5 };
-	double factor5[3] = { 0.5, 0.5, 0.5 };
-	double factor6[3] = { 1.0, 1.0, 1.0 };
+	double factor6[3] = { 1.0, 1.0, 4.0 };
 	double factor7[3] = { 10.0, 10.0, 10.0 };
-
-	raytracer.translate(sphere4, Vector3D(-2, 0, -6));
-	raytracer.scale(sphere4, Point3D(0, 0, 0), factor5);
-
-	raytracer.translate(sphere3, Vector3D(0, 2, -6));
-	raytracer.scale(sphere3, Point3D(0, 0, 0), factor6);
-
-	raytracer.translate(sphere2, Vector3D(2, 0, -6));
-	raytracer.scale(sphere2, Point3D(0, 0, 0), factor5);
-
-	raytracer.translate(sphere1, Vector3D(0, -2, -6));
-	raytracer.scale(sphere1, Point3D(0, 0, 0), factor4);
-
-
-	//	raytracer.translate(sphere, Vector3D(0, 0, -5));
-	//	raytracer.rotate(sphere, 'x', -45);
-	//	raytracer.rotate(sphere, 'z', 45);
-	//	raytracer.scale(sphere, Point3D(0, 0, 0), factor1);
 
 	raytracer.translate(plane, Vector3D(0, 0, -8));
 	raytracer.rotate(plane, 'z', 45);
 	raytracer.scale(plane, Point3D(0, 0, 0), factor7);
 
-	raytracer.translate(cylinder, Vector3D(0, 0, -6));
+	raytracer.translate(cylinder, Vector3D(2, 0, -6));
 	raytracer.scale(cylinder, Point3D(0, 0, 0), factor6);
-
-	// Effects
-	raytracer.controlEffects();
 
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.
-	raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
-
-	//raytracer.translate(cylinder, Vector3D(-1, 0, 0));
-	// Render it from a different point of view.
-	Point3D eye2(4, 2, 1);
-	Vector3D view2(-4, -2, -6);
-	raytracer.render(width, height, eye2, view2, up, fov, "view2.bmp");
+	raytracer.render(raytracer.imgWidth, raytracer.imgHeight, eye, view, up, fov, "scene2_view1.bmp");
 
 	return 0;
 }

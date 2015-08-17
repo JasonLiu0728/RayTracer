@@ -1,0 +1,67 @@
+struct Point3D {
+	float3 point;
+}
+/*struct Material {
+	Material( float3 ambient, float3 diffuse, float3 specular, float exp ) :
+		ambient(ambient), diffuse(diffuse), specular(specular), 
+		specular_exp(exp) {}
+	
+	// Ambient components for Phong shading.
+	float3 ambient; 
+	// Diffuse components for Phong shading.
+	float3 diffuse;
+	// Specular components for Phong shading.
+	float3 specular;
+	// Specular expoent.
+	float specular_exp;
+};
+struct Intersection {
+	// Location of intersection.
+	float3 point;
+	// Normal at the intersection.
+	float3 normal;
+	// Material at the intersection.
+	Material* mat;
+	// Position of the intersection point on your ray.
+	// (i.e. point = ray.origin + t_value * ray.dir)
+	// This is used when you need to intersect multiply objects and
+	// only want to keep the nearest intersection.
+	float t_value;	
+	// Set to true when no intersection has occured.
+	bool none;
+};
+
+struct Ray3D {
+	Ray3D() {
+		intersection.none = true; 
+	}
+	Ray3D( Point3D p, Vector3D v ) : origin(p), dir(v) {
+		intersection.none = true;
+	}
+	// Origin and direction of the ray.
+	float3 origin;
+	float3 dir;
+	// Intersection status, should be computed by the intersection
+	// function.
+	Intersection intersection;
+	// Current colour of the ray, should be computed by the shading
+	// function.
+	float3 col;
+};*/
+
+/*float3 normalize(float3 m_data)
+{
+	float denom = 1.0;
+	float x = (m_data[0] > 0.0) ? m_data[0] : -m_data[0];
+	float y = (m_data[1] > 0.0) ? m_data[1] : -m_data[1];
+	float z = (m_data[2] > 0.0) ? m_data[2] : -m_data[2];
+}*/
+
+__kernel void main( __global float4 *dst, uint width, uint height, __global float* eye, __global float* view, __global float* up, __global float* fov )
+{
+	
+}
+
+if (m_data.x > 0.0f) { float x = m_data.x; }
+	if (m_data.y > 0.0f) { float y = m_data.y; }
+	if (m_data.z > 0.0f) { float z = m_data.z; }

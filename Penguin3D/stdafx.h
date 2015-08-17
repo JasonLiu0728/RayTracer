@@ -7,26 +7,25 @@
 
 #include "targetver.h"
 
-#include <algorithm>
-#include <cmath>
-#include <cstdlib>
-#include <fstream>
-#include <iomanip>
+#include <windows.h>
 #include <iostream>
-#include <sstream>
 #include <stdio.h>
 #include <tchar.h>
-#include <CL\cl.h>
-#include <CL\cl.hpp>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
+#include <GL/glui.h>
 
-#include "util.h"
-#include "scene_object.h"
-#include "light_source.h"
-#include "bmp_io.h"
-#include "raytracer.h"
-#include "Effects.h"
-#include "Scene.h"
-
+#include "3dvector.h"
+#include "keyframe.h"
+#include "timer.h"
+#include "vector.h"
+#include "parts.h"
+#include "colorpalette.h"
 
 
 
