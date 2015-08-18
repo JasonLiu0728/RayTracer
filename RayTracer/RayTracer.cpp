@@ -391,6 +391,127 @@ Colour Raytracer::shadeRay(Ray3D& ray, int depth) {
 	return col;
 }
 
+void Raytracer::scene1()
+{
+	// Camera parameters
+	Point3D eye(0, 0, 1);
+	Vector3D view(0, 0, -1);
+	Vector3D up(0, 1, 0);
+	double fov = 60;
+
+	// Defines a material for shading.
+	Material gold(Colour(0.3, 0.3, 0.3), Colour(0.75164, 0.60648, 0.22648),
+		Colour(0.628281, 0.555802, 0.366065),
+		51.2);
+	Material jade(Colour(0, 0, 0), Colour(0.54, 0.89, 0.63),
+		Colour(0.316228, 0.316228, 0.316228),
+		12.8);
+	Material copper(Colour(0.3, 0.3, 0.3), Colour(0.75164, 0.30648, 0.12648),
+		Colour(0.628281, 0.555802, 0.366065),
+		51.2);
+	Material glass(Colour(0.3, 0.3, 0.3), Colour(0.8, 0.8, 0.8),
+		Colour(0.628281, 0.555802, 0.366065),
+		51.2);
+
+	// Initialize OpenCL
+	//initOpenCL();
+
+	/****************** An area light source. ************************/
+	addAreaLightSource(3, 2, 2, 8, Point3D(0, 0, 5), Colour(0.01, 0.01, 0.01));
+
+	// Add a unit square into the scene with material mat.
+	//	SceneDagNode* sphere = addObject( new UnitSphere(), &gold );
+	SceneDagNode* plane = addObject(new UnitSquare(), &jade);
+	SceneDagNode* cylinder = addObject(new UnitCylinder(), &gold);
+	SceneDagNode* sphere1 = addObject(new UnitSphere(), &gold);
+	SceneDagNode* sphere2 = addObject(new UnitSphere(), &copper);
+	SceneDagNode* sphere3 = addObject(new UnitSphere(), &glass);
+	SceneDagNode* sphere4 = addObject(new UnitSphere(), &jade);
+
+	// Apply some transformations to the unit square.
+	/*double factor1[3] = { 1.0, 2.0, 1.0 };
+	double factor2[3] = { 6.0, 6.0, 6.0 };
+	double factor3[3] = { 1.5, 1.5, 3.0 };*/
+	double scaleCylinder[3] = { 1.0, 1.0, 4.0 };
+	double scalePlane[3] = { 10.0, 10.0, 10.0 };
+	double scaleSphere1[3] = { 0.5, 0.5, 0.5 };
+	double scaleSphere2[3] = { 0.5, 0.5, 0.5 };
+	double scaleSphere3[3] = { 0.5, 0.5, 0.5 };
+	double scaleSphere4[3] = { 0.5, 0.5, 0.5 };
+
+	translate(sphere4, Vector3D(-2, 0, -6));
+	scale(sphere4, Point3D(0, 0, 0), scaleSphere4);
+
+	translate(sphere3, Vector3D(0, 2, -6));
+	scale(sphere3, Point3D(0, 0, 0), scaleSphere3);
+
+	translate(sphere2, Vector3D(2, 0, -6));
+	scale(sphere2, Point3D(0, 0, 0), scaleSphere2);
+
+	translate(sphere1, Vector3D(0, -2, -6));
+	scale(sphere1, Point3D(0, 0, 0), scaleSphere1);
+
+	translate(plane, Vector3D(0, 0, -10));
+	scale(plane, Point3D(0, 0, 0), scalePlane);
+
+	translate(cylinder, Vector3D(0, 0, -6));
+	scale(cylinder, Point3D(0, 0, 0), scaleCylinder);
+
+	// Render the scene, feel free to make the image smaller for
+	// testing purposes.
+	render(imgWidth, imgHeight, eye, view, up, fov, "scene1_view1.bmp");
+
+	// Render it from a different point of view.
+	Point3D eye2(4, 2, 1);
+	Vector3D view2(-4, -2, -6);
+	render(imgWidth, imgHeight, eye2, view2, up, fov, "scene1_view2.bmp");
+}
+void Raytracer::scene2()
+{
+	// Camera parameters.
+	Point3D eye(0, 0, 1);
+	Vector3D view(0, 0, -1);
+	Vector3D up(0, 1, 0);
+	double fov = 60;
+
+	// Defines a material for shading.
+	Material gold(Colour(0.3, 0.3, 0.3), Colour(0.75164, 0.60648, 0.22648),
+		Colour(0.628281, 0.555802, 0.366065),
+		51.2);
+	Material jade(Colour(0, 0, 0), Colour(0.54, 0.89, 0.63),
+		Colour(0.316228, 0.316228, 0.316228),
+		12.8);
+
+	// Defines a point light source.
+	addLightSource(new PointLight(Point3D(0, 0, 5),
+		Colour(0.9, 0.9, 0.9), sceneSignature));
+
+	// Add a unit square into the scene with material mat.
+	SceneDagNode* sphere = addObject(new UnitSphere(), &gold);
+	SceneDagNode* plane = addObject(new UnitSquare(), &jade);
+
+	// Apply some transformations to the unit square.
+	double factor1[3] = { 1.0, 2.0, 1.0 };
+	double factor2[3] = { 6.0, 6.0, 6.0 };
+	translate(sphere, Vector3D(0, 0, -5));
+	rotate(sphere, 'x', -45);
+	rotate(sphere, 'z', 45);
+	scale(sphere, Point3D(0, 0, 0), factor1);
+
+	translate(plane, Vector3D(0, 0, -7));
+	rotate(plane, 'z', 45);
+	scale(plane, Point3D(0, 0, 0), factor2);
+
+	// Render the scene, feel free to make the image smaller for
+	// testing purposes.	
+	render(imgWidth, imgHeight, eye, view, up, fov, "scene2_view1.bmp");
+
+	// Render it from a different point of view.
+	Point3D eye2(4, 2, 1);
+	Vector3D view2(-4, -2, -6);
+	render(imgWidth, imgHeight, eye2, view2, up, fov, "scene2_view2.bmp");
+}
+
 void Raytracer::render(int width, int height, Point3D eye, Vector3D view,
 	Vector3D up, double fov, char* fileName) {
 	Matrix4x4 viewToWorld;
@@ -517,14 +638,16 @@ void Raytracer::argParse(int argc, char* argv[])
 
 	imgWidth = atoi(argv[1]);
 	imgHeight = atoi(argv[2]);
-	std::istringstream(argv[3]) >> std::boolalpha >> enableShadow;
-	std::istringstream(argv[4]) >> std::boolalpha >> enableGlossyReflection;
-	std::istringstream(argv[5]) >> std::boolalpha >> enableRefraction;
+	std::istringstream(argv[3]) >> std::boolalpha >> sceneSignature;
+	std::istringstream(argv[4]) >> std::boolalpha >> enableShadow;
+	std::istringstream(argv[5]) >> std::boolalpha >> enableGlossyReflection;
+	std::istringstream(argv[6]) >> std::boolalpha >> enableRefraction;
 
 	printf("\nwidth = %d, height = %d\n", imgWidth, imgHeight);
-	std::cout << "Soft Shadow\t" << enableShadow << std::endl;
+	std::cout << "Debug (Scene Signature)\t" << sceneSignature << std::endl;
+	std::cout << "Soft Shadow\t\t" << enableShadow << std::endl;
 	std::cout << "Glossy Reflection\t" << enableGlossyReflection << std::endl;
-	std::cout << "Refraction\t" << enableRefraction << std::endl;
+	std::cout << "Refraction\t\t" << enableRefraction << std::endl;
 }
 
 
@@ -538,50 +661,8 @@ int main(int argc, char* argv[])
 	// assignment.
 
 	Raytracer raytracer;
-	//Scene scene;
 	raytracer.argParse(argc, argv);
-
-	//scene.scene1(raytracer);
-	//scene.scene2(raytracer);
-
-	// Camera parameters
-	Point3D eye(0, 0, 1);
-	Vector3D view(0, 0, -1);
-	Vector3D up(0, 1, 0);
-	double fov = 60;
-
-	// Defines a material for shading.
-	Material gold(Colour(0.3, 0.3, 0.3), Colour(0.75164, 0.60648, 0.22648),
-		Colour(0.628281, 0.555802, 0.366065),
-		51.2);
-	Material jade(Colour(0, 0, 0), Colour(0.54, 0.89, 0.63),
-		Colour(0.316228, 0.316228, 0.316228),
-		12.8);
-
-	// Initialize OpenCL
-	//raytracer.initOpenCL();
-
-	/****************** An area light source. ************************/
-	raytracer.addAreaLightSource(3, 2, 2, 8, Point3D(0, 0, 5), Colour(0.01, 0.01, 0.01));
-
-	// Add a unit square into the scene with material mat.
-	SceneDagNode* plane = raytracer.addObject(new UnitSquare(), &jade);
-	SceneDagNode* cylinder = raytracer.addObject(new UnitCylinder(), &gold);
-
-	// Apply some transformations to the unit square.
-	double factor6[3] = { 1.0, 1.0, 4.0 };
-	double factor7[3] = { 10.0, 10.0, 10.0 };
-
-	raytracer.translate(plane, Vector3D(0, 0, -8));
-	raytracer.rotate(plane, 'z', 45);
-	raytracer.scale(plane, Point3D(0, 0, 0), factor7);
-
-	raytracer.translate(cylinder, Vector3D(2, 0, -6));
-	raytracer.scale(cylinder, Point3D(0, 0, 0), factor6);
-
-	// Render the scene, feel free to make the image smaller for
-	// testing purposes.
-	raytracer.render(raytracer.imgWidth, raytracer.imgHeight, eye, view, up, fov, "scene2_view1.bmp");
+	raytracer.scene1();
 
 	return 0;
 }

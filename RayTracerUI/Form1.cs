@@ -13,11 +13,13 @@ namespace RayTracerUI
 {
     public partial class Form1 : Form
     {
+        string sceneSignature = "false";
+
         string enableShadow = "false";
         string enableGlossyReflection = "false";
         string enableRefraction = "false";
-        string width = "320";
-        string height = "240";
+        string width = "0";
+        string height = "0";
 
         public Form1()
         {
@@ -29,7 +31,7 @@ namespace RayTracerUI
             Process raytracer = new Process();
             string args;
 
-            args = String.Format("{0} {1} {2} {3} {4}", width, height, enableShadow, enableGlossyReflection, enableRefraction);
+            args = String.Format("{0} {1} {2} {3} {4} {5}", width, height, sceneSignature, enableShadow, enableGlossyReflection, enableRefraction);
 
             raytracer.StartInfo.FileName = "C:\\Users\\Jason\\Documents\\Visual Studio 2013\\Projects\\RayTracer\\x64\\Debug\\RayTracer.exe";
             raytracer.StartInfo.Arguments = args;
@@ -62,12 +64,25 @@ namespace RayTracerUI
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            width = "320";
+            width = textBox1.Text;
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
-            height = "240";
+            height = textBox2.Text;
+        }
+
+        private void checkBox8_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox8.Checked)
+                sceneSignature = "true";
+            else
+                sceneSignature = "false";
+        }
+
+        private void checkBox5_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
 
         

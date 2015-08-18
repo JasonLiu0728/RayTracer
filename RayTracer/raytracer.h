@@ -1,19 +1,13 @@
 /***********************************************************
-     Starter code for Assignment 3
 
-     This code was originally written by Jack Wang for
-		    CSC418, SPRING 2005
-
-		This file contains the interface and
-		datastructures of the raytracer.
-		Simple traversal and addition code to
-		the datastructures are given to you.
+Author: Mark Liu, Seungmoon Rieh, Jack Wang
 
 ***********************************************************/
 
-#include "util.h"
-#include "scene_object.h"
-#include "light_source.h"
+#include "stdafx.h"
+//#include "util.h"
+//#include "scene_object.h"
+//#include "light_source.h"
 
 // Linked list containing light sources in the scene.
 struct LightListNode {
@@ -93,9 +87,9 @@ public:
 	// Add an area light source
 	void addAreaLightSource(int orient, double l, double w, double density, Point3D origin, Colour col);
 
-	double LightSource_length;
-	double LightSource_width;
-	double LightSource_density;
+	// Scene set up and rendering
+	void scene1();
+	void scene2();
 
 	// Transformation functions are implemented by right-multiplying
 	// the transformation matrix to the node's transformation matrix.
@@ -109,11 +103,14 @@ public:
 	// Apply scaling about a fixed point origin.
 	void scale( SceneDagNode* node, Point3D origin, double factor[3] );
 
-	// Scene rendering
-	void scene1();
-
 	//Parse input arguments
 	void argParse(int argc, char* argv[]);
+
+	double LightSource_length;
+	double LightSource_width;
+	double LightSource_density;
+
+	bool sceneSignature;
 
 	bool enableFSAA;
 	bool enableShadow;
@@ -124,7 +121,7 @@ public:
 	int imgHeight;
 
 
-private:
+protected:
 	// Allocates and initializes the pixel buffer for rendering, you
 	// could add an interesting background to your scene by modifying
 	// this function.
@@ -168,4 +165,9 @@ private:
 	Matrix4x4 _worldToModel;
 
 	int _maxDepth;
+};
+
+class Scene1 : public Raytracer
+{
+
 };

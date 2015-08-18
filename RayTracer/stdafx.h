@@ -5,7 +5,10 @@
 
 #pragma once
 
+#define NOMINMAX
+
 #include "targetver.h"
+#include <Windows.h>
 
 #include <algorithm>
 #include <cmath>
@@ -14,6 +17,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <unordered_map>
 #include <stdio.h>
 #include <tchar.h>
 #include <CL\cl.h>
@@ -25,7 +29,6 @@
 #include "bmp_io.h"
 #include "raytracer.h"
 #include "Effects.h"
-#include "Scene.h"
 
 
 

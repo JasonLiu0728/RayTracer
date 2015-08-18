@@ -1,16 +1,10 @@
 /***********************************************************
-     Starter code for Assignment 3
 
-     This code was originally written by Jack Wang for
-		    CSC418, SPRING 2005
-
-		implementations of util.h	
+implements util.h
 
 ***********************************************************/
 
 #include "stdafx.h"
-//#include <cmath>
-//#include "util.h"
 
 
 Point3D::Point3D() {
@@ -345,10 +339,10 @@ Matrix4x4 Matrix4x4::transpose() const {
 Matrix4x4 operator *(const Matrix4x4& a, const Matrix4x4& b) {
 	Matrix4x4 ret;
 
-	for(size_t i = 0; i < 4; ++i) {
+	for(int i = 0; i < 4; ++i) {
 		Vector4D row = a.getRow(i);
 
-		for(size_t j = 0; j < 4; ++j) {
+		for(int j = 0; j < 4; ++j) {
 			ret[i][j] = row[0] * b[0][j] + row[1] * b[1][j] + 
 				row[2] * b[2][j] + row[3] * b[3][j];
 		}

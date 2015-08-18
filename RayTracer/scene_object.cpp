@@ -1,17 +1,10 @@
 /***********************************************************
-     Starter code for Assignment 3
 
-     This code was originally written by Jack Wang for
-		    CSC418, SPRING 2005
-
-		implements scene_object.h
+implements scene_object.h
 
 ***********************************************************/
 
 #include "stdafx.h"
-//#include <cmath>
-//#include <iostream>
-//#include "scene_object.h"
 using namespace std;
 
 bool UnitSquare::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
